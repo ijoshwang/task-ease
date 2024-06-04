@@ -1,0 +1,6 @@
+@TodoAPI_HostAddress = http://localhost:5008
+
+GET {{TodoAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
