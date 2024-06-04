@@ -174,7 +174,7 @@ const Component: React.FC = () => {
     <div className="flex flex-col h-screen">
       <header className="bg-gray-900 text-white py-4 px-6">
         <div className="flex justify-between items-center">
-          <Typography variant="h4">Todo List</Typography>
+          <Typography variant="h4">Todo Lists</Typography>
           <Button
             variant="contained"
             color="primary"
