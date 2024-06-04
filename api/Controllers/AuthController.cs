@@ -25,16 +25,16 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] UserLogin userLogin)
     {
-        Console.WriteLine($"Login attempt for user: {userLogin.Name}");
         var user = _userService.Authenticate(userLogin.Name, userLogin.Password);
 
         if (user == null)
         {
-            Console.WriteLine("Authentication failed: User not found or invalid password.");
             return Unauthorized();
         }
 
         var token = GenerateToken(user);
+        Console.WriteLine($"Generated JWT Token: {token}"); // Debug log for generated token
+
         return Ok(new { token });
     }
 
@@ -47,7 +47,7 @@ public class AuthController : ControllerBase
         {
         new Claim(JwtRegisteredClaimNames.Sub, user.Name),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new Claim(ClaimTypes.NameIdentifier, user.Id)
+        new Claim("UserId", user.Id) // Custom Claim for UserId
     };
 
         var token = new JwtSecurityToken(

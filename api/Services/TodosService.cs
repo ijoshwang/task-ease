@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using TodoAPI.Data;
 using TodoAPI.Models;
@@ -15,25 +16,18 @@ public class TodosService : ITodosService
         _context = context;
     }
 
-    public async Task<IEnumerable<Todo>> GetAllTodos(string userId, string status = null, string sortBy = null, string sortOrder = null)
+    public async Task<IEnumerable<Todo>> GetAllTodos(string userId, string status = "all", string sortBy = "createTime", string sortOrder = "asc")
     {
-        var filterBuilder = Builders<Todo>.Filter;
-        var filter = filterBuilder.Eq(todo => todo.UserId, userId);
-
-        if (!string.IsNullOrEmpty(status))
+        var filter = Builders<Todo>.Filter.Eq(t => t.UserId, userId);
+        if (status != "all")
         {
-            filter &= filterBuilder.Eq(todo => todo.Status, int.Parse(status));
+            var statusFilter = Builders<Todo>.Filter.Eq(t => t.Status, int.Parse(status));
+            filter = Builders<Todo>.Filter.And(filter, statusFilter);
         }
 
-        var sortBuilder = Builders<Todo>.Sort;
-        SortDefinition<Todo> sort = sortBuilder.Ascending(todo => todo.CreateTime);
+        var sortDefinition = sortOrder == "asc" ? Builders<Todo>.Sort.Ascending(sortBy) : Builders<Todo>.Sort.Descending(sortBy);
 
-        if (!string.IsNullOrEmpty(sortBy))
-        {
-            sort = sortOrder == "desc" ? sortBuilder.Descending(sortBy) : sortBuilder.Ascending(sortBy);
-        }
-
-        return await _context.Todos.Find(filter).Sort(sort).ToListAsync();
+        return await _context.Todos.Find(filter).Sort(sortDefinition).ToListAsync();
     }
 
     public async Task<Todo> GetTodoById(string id)
@@ -43,18 +37,21 @@ public class TodosService : ITodosService
 
     public async Task CreateTodo(Todo todo)
     {
+        Console.WriteLine($"Inserting Todo with userId: {todo.UserId}");
         await _context.Todos.InsertOneAsync(todo);
     }
 
     public async Task UpdateTodo(string id, Todo todo)
     {
-        var filter = Builders<Todo>.Filter.Eq(t => t.Id, id) & Builders<Todo>.Filter.Eq(t => t.UserId, todo.UserId);
-        await _context.Todos.ReplaceOneAsync(filter, todo);
+        await _context.Todos.ReplaceOneAsync(todo => todo.Id == id, todo);
     }
 
     public async Task DeleteTodo(string id, string userId)
     {
-        var filter = Builders<Todo>.Filter.Eq(t => t.Id, id) & Builders<Todo>.Filter.Eq(t => t.UserId, userId);
+        var filter = Builders<Todo>.Filter.And(
+            Builders<Todo>.Filter.Eq(t => t.Id, id),
+            Builders<Todo>.Filter.Eq(t => t.UserId, userId)
+        );
         await _context.Todos.DeleteOneAsync(filter);
     }
 }
