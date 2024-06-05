@@ -63,18 +63,16 @@ export async function signIn(
 }
 
 export async function getTodos(
-  status?: string,
+  filterStatus?: string,
   sortBy?: string,
   sortOrder?: string
 ): Promise<Todo[]> {
-  const params = new URLSearchParams()
-  if (status) params.append('status', status)
-  if (sortBy) params.append('sortBy', sortBy)
-  if (sortOrder) params.append('sortOrder', sortOrder)
+  const query = new URLSearchParams()
+  if (filterStatus) query.append('status', filterStatus)
+  if (sortBy) query.append('sortBy', sortBy)
+  if (sortOrder) query.append('sortOrder', sortOrder)
 
-  const endpoint = `${ENDPOINT.TODOS}?${params.toString()}`
-
-  return sendRequest<Todo[]>(endpoint)
+  return sendRequest<Todo[]>(`${ENDPOINT.TODOS}?${query.toString()}`)
 }
 
 export async function getTodoById(todoId: string): Promise<Todo> {
