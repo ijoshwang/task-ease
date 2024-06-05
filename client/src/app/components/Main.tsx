@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Container } from '@mui/material'
+import { useRouter } from 'next/navigation'
 
 import { createTodo, deleteTodo, getTodos, Todo, updateTodo } from '@/services'
 
@@ -17,6 +18,23 @@ const Main: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<string>('asc')
   const [newTodo, setNewTodo] = useState<Todo | null>(null)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    const handleUnauthorized = (event: MessageEvent) => {
+      if (event.data.type === 'UNAUTHORIZED') {
+        localStorage.removeItem('AUTH_TOKEN')
+        router.push('/signin')
+      }
+    }
+
+    globalThis.addEventListener('message', handleUnauthorized)
+
+    return () => {
+      // Remove the event listener when the component unmounts
+      globalThis.removeEventListener('message', handleUnauthorized)
+    }
+  }, [router])
 
   useEffect(() => {
     const fetchData = async () => {

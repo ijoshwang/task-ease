@@ -33,7 +33,8 @@ async function sendRequest<T>(
   endpoint: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
   payload: object | null = null
-): Promise<T> {
+): Promise<T | null> {
+  // Allow the return type to be null
   const url = `${baseURL}${endpoint}`
   const token = globalThis.localStorage?.getItem(AUTH_TOKEN) || ''
 
@@ -47,19 +48,36 @@ async function sendRequest<T>(
   }
 
   const response = await fetch(url, options)
+  console.log('🚀 ~ response:', response)
+
+  if (response.status === 401) {
+    // Use postMessage to notify components of unauthorized status
+    globalThis.postMessage({ type: 'UNAUTHORIZED' }, '*')
+
+    return Promise.reject(new Error('Unauthorized'))
+  }
+
+  if (response.status === 204) {
+    return null // Explicitly return null for No Content responses
+  }
 
   if (!response.ok) {
     const error = await response.json()
     throw new Error(error.message || 'Request failed')
   }
 
-  return response.json()
+  return response.json() // Parse JSON only if the response is OK and not a 204
 }
 
 export async function signIn(
   credentials: UserCredentials
 ): Promise<SignInResponse> {
   return sendRequest<SignInResponse>(ENDPOINT.SIGNIN, 'POST', credentials)
+}
+
+export function signOut() {
+  globalThis.localStorage.removeItem(AUTH_TOKEN) // Removes the token from localStorage
+  // Additional cleanup can be performed here if necessary
 }
 
 export async function getTodos(

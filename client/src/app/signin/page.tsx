@@ -6,6 +6,13 @@ import { useRouter } from 'next/navigation'
 
 import { AUTH_TOKEN, signIn, UserCredentials } from '@/services'
 
+const users = [
+  { name: 'Alice', initial: 'A' },
+  { name: 'Bob', initial: 'B' },
+  { name: 'Charlie', initial: 'C' },
+  { name: 'David', initial: 'D' },
+]
+
 export default function Signin() {
   const router = useRouter()
 
@@ -39,116 +46,34 @@ export default function Signin() {
           </Typography>
         </div>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Button
-              variant="outlined"
-              fullWidth
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-              }}
-              onClick={() =>
-                handleSignIn({ name: 'Alice', password: 'todoapp' })
-              }
-            >
-              <Avatar
-                src="/placeholder.svg"
-                alt="Alice"
+          {users.map((user) => (
+            <Grid item xs={6} key={user.name}>
+              <Button
+                variant="outlined"
+                fullWidth
                 style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: deepOrange[500],
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
                 }}
+                onClick={() =>
+                  handleSignIn({ name: user.name, password: 'todoapp' })
+                }
               >
-                A
-              </Avatar>
-              Alice
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              variant="outlined"
-              fullWidth
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-              }}
-              onClick={() => handleSignIn({ name: 'Bob', password: 'todoapp' })}
-            >
-              <Avatar
-                src="/placeholder.svg"
-                alt="Bob"
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: deepOrange[500],
-                }}
-              >
-                B
-              </Avatar>
-              Bob
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              variant="outlined"
-              fullWidth
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-              }}
-              onClick={() =>
-                handleSignIn({ name: 'Charlie', password: 'todoapp' })
-              }
-            >
-              <Avatar
-                src="/placeholder.svg"
-                alt="Charlie"
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: deepOrange[500],
-                }}
-              >
-                C
-              </Avatar>
-              Charlie
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              variant="outlined"
-              fullWidth
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-              }}
-              onClick={() =>
-                handleSignIn({ name: 'David', password: 'todoapp' })
-              }
-            >
-              <Avatar
-                src="/placeholder.svg"
-                alt="David"
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: deepOrange[500],
-                }}
-              >
-                D
-              </Avatar>
-              David
-            </Button>
-          </Grid>
+                <Avatar
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: deepOrange[500],
+                  }}
+                >
+                  {user.initial}
+                </Avatar>
+                {user.name}
+              </Button>
+            </Grid>
+          ))}
         </Grid>
       </Container>
     </div>
