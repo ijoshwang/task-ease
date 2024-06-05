@@ -1,3 +1,33 @@
+# Task-Ease Client
+
+The client-side of Task-Ease is built using Next.js, TypeScript, and Material-UI (MUI) to create a responsive and user-friendly interface for managing TODOs.
+
+## Tech Stack
+
+- **Framework**: Next.js
+- **Programming Language**: TypeScript
+- **UI Library**: Material-UI (MUI)
+
+## Directory Structure
+
+- Detailed structure of client-side directories and files.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js and npm/yarn
+
+### Setup
+
+1. Navigate to the client directory.
+2. Install dependencies.
+3. Configure environment variables.
+
+### Running the Client
+
+Run the client development server and access it via the local URL.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
