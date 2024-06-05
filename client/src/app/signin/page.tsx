@@ -1,7 +1,25 @@
+'use client'
+
 import { Avatar, Button, Container, Grid, Typography } from '@mui/material'
 import { deepOrange } from '@mui/material/colors'
+import { useRouter } from 'next/navigation'
 
-export default function Component() {
+import { AUTH_TOKEN, signIn, UserCredentials } from '@/services'
+
+export default function Signin() {
+  const router = useRouter()
+
+  const handleSignIn = async (credentials: UserCredentials) => {
+    try {
+      const response = await signIn(credentials)
+      globalThis.localStorage.setItem(AUTH_TOKEN, response.token)
+      console.log('Signed in successfully')
+      router.push('/') // Redirect to home page
+    } catch (error) {
+      console.error('Error signing in:', error)
+    }
+  }
+
   return (
     <div
       style={{
@@ -9,7 +27,6 @@ export default function Component() {
         height: '100vh',
         alignItems: 'center',
         justifyContent: 'center',
-        // backgroundColor: '#f5f5f5',
       }}
     >
       <Container maxWidth="xs">
@@ -32,19 +49,22 @@ export default function Component() {
                 justifyContent: 'center',
                 gap: '10px',
               }}
+              onClick={() =>
+                handleSignIn({ name: 'Alice', password: 'todoapp' })
+              }
             >
               <Avatar
                 src="/placeholder.svg"
-                alt="Jared Palmer"
+                alt="Alice"
                 style={{
                   width: 24,
                   height: 24,
                   backgroundColor: deepOrange[500],
                 }}
               >
-                JP
+                A
               </Avatar>
-              Jared Palmer
+              Alice
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -57,19 +77,20 @@ export default function Component() {
                 justifyContent: 'center',
                 gap: '10px',
               }}
+              onClick={() => handleSignIn({ name: 'Bob', password: 'todoapp' })}
             >
               <Avatar
                 src="/placeholder.svg"
-                alt="Olivia Davis"
+                alt="Bob"
                 style={{
                   width: 24,
                   height: 24,
                   backgroundColor: deepOrange[500],
                 }}
               >
-                OD
+                B
               </Avatar>
-              Olivia Davis
+              Bob
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -82,19 +103,22 @@ export default function Component() {
                 justifyContent: 'center',
                 gap: '10px',
               }}
+              onClick={() =>
+                handleSignIn({ name: 'Charlie', password: 'todoapp' })
+              }
             >
               <Avatar
                 src="/placeholder.svg"
-                alt="John Doe"
+                alt="Charlie"
                 style={{
                   width: 24,
                   height: 24,
                   backgroundColor: deepOrange[500],
                 }}
               >
-                JD
+                C
               </Avatar>
-              John Doe
+              Charlie
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -107,19 +131,22 @@ export default function Component() {
                 justifyContent: 'center',
                 gap: '10px',
               }}
+              onClick={() =>
+                handleSignIn({ name: 'David', password: 'todoapp' })
+              }
             >
               <Avatar
                 src="/placeholder.svg"
-                alt="Jane Smith"
+                alt="David"
                 style={{
                   width: 24,
                   height: 24,
                   backgroundColor: deepOrange[500],
                 }}
               >
-                JS
+                D
               </Avatar>
-              Jane Smith
+              David
             </Button>
           </Grid>
         </Grid>
