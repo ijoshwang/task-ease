@@ -10,16 +10,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
 // Add CORS services and define a policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost3000",
-        builder => builder
-            .WithOrigins("http://localhost:3000")
+    options.AddPolicy("AllowSpecificOrigins",
+        policy => policy
+            .WithOrigins("http://localhost:3000", "http://127.0.0.1:3000", "https://task-ease.vercel.app")
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowCredentials()); // Only include AllowCredentials if necessary
 });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -79,7 +81,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -96,7 +97,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Use the CORS policy
-app.UseCors("AllowLocalhost3000");
+app.UseCors("AllowSpecificOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
