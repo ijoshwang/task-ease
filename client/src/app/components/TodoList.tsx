@@ -10,7 +10,7 @@ interface TodoListProps {
   newTodo: Todo | null
   setNewTodo: React.Dispatch<React.SetStateAction<Todo | null>>
   handleSaveNewTodo: () => void
-  handleEditTodo: (todo: Todo) => void
+  handleEditTodo: (todo: Todo | null) => void
   handleUpdateTodoStatus: (id: string, status: number) => void
   handleDeleteTodo: (id: string) => void
 }
@@ -27,15 +27,17 @@ export default function TodoList({
   return (
     <Grid container spacing={2}>
       {newTodo && (
-        <TodoForm
-          newTodo={newTodo}
-          setNewTodo={setNewTodo}
-          handleSaveNewTodo={handleSaveNewTodo}
-          handleCancelNewTodo={() => setNewTodo(null)}
-        />
+        <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
+          <TodoForm
+            newTodo={newTodo}
+            setNewTodo={setNewTodo}
+            handleSaveNewTodo={handleSaveNewTodo}
+            handleCancelNewTodo={() => setNewTodo(null)}
+          />
+        </Grid>
       )}
       {todos.map((todo) => (
-        <Grid item xs={12} md={6} lg={4} key={todo.id}>
+        <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={todo.id}>
           <TodoItem
             todo={todo}
             handleEditTodo={handleEditTodo}

@@ -17,7 +17,7 @@ import {
 import { Todo } from '@/services'
 
 interface TodoFormProps {
-  newTodo: Todo
+  newTodo: Todo | null
   setNewTodo: React.Dispatch<React.SetStateAction<Todo | null>>
   handleSaveNewTodo: () => void
   handleCancelNewTodo: () => void
@@ -36,7 +36,7 @@ export default function TodoForm({
           <TextField
             fullWidth
             variant="outlined"
-            value={newTodo.name}
+            value={newTodo?.name}
             onChange={(e) =>
               setNewTodo((prevTodo) => ({
                 ...prevTodo!,
@@ -50,7 +50,7 @@ export default function TodoForm({
         <TextField
           fullWidth
           variant="outlined"
-          value={newTodo.description}
+          value={newTodo?.description}
           onChange={(e) =>
             setNewTodo((prevTodo) => ({
               ...prevTodo!,
@@ -64,7 +64,7 @@ export default function TodoForm({
           fullWidth
           variant="outlined"
           type="date"
-          value={newTodo.dueDate}
+          value={newTodo?.dueDate}
           onChange={(e) =>
             setNewTodo((prevTodo) => ({
               ...prevTodo!,
@@ -75,7 +75,7 @@ export default function TodoForm({
         <FormControl fullWidth variant="outlined">
           <InputLabel>Status</InputLabel>
           <Select
-            value={newTodo.status!.toString()}
+            value={newTodo?.status!.toString()}
             onChange={(e) =>
               setNewTodo((prevTodo) => ({
                 ...prevTodo!,

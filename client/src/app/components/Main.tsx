@@ -83,7 +83,7 @@ export default function Main() {
     }
   }
 
-  const handleEditTodo = (todo: Todo) => {
+  const handleEditTodo = (todo: Todo | null) => {
     setEditingTodo(todo)
     setNewTodo(todo)
   }
@@ -143,7 +143,7 @@ export default function Main() {
   }, [todos, filterStatus, sortBy, sortOrder])
 
   return (
-    <Container>
+    <Container maxWidth="xl">
       <Header />
       <FilterSort
         onCreateTodo={handleCreateTodo}
