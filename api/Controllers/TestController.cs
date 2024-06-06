@@ -3,31 +3,30 @@ using MongoDB.Driver;
 using TodoAPI.Data;
 using TodoAPI.Models;
 
-namespace TodoAPI.Controllers
+namespace TodoAPI.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class TestController : ControllerBase
 {
-    [ApiController]
-    [Route("api/test")]
-    public class TestController : ControllerBase
+    private readonly TodoContext _context;
+
+    public TestController(TodoContext context)
     {
-        private readonly TodoContext _context;
+        _context = context;
+    }
 
-        public TestController(TodoContext context)
+    [HttpGet("test-connection")]
+    public IActionResult TestConnection()
+    {
+        try
         {
-            _context = context;
+            var users = _context.Users.Find(user => true).FirstOrDefault();
+            return Ok("Connection to MongoDB is successful!");
         }
-
-        [HttpGet("test-connection")]
-        public IActionResult TestConnection()
+        catch (Exception ex)
         {
-            try
-            {
-                var users = _context.Users.Find(user => true).FirstOrDefault();
-                return Ok("Connection to MongoDB is successful!");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error connecting to MongoDB: {ex.Message}");
-            }
+            return StatusCode(500, $"Error connecting to MongoDB: {ex.Message}");
         }
     }
 }

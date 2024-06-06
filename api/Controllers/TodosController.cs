@@ -5,6 +5,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TodoAPI.Models;
 using TodoAPI.Services;
+using TodoAPI.DTOs; // This needs to be added
+using Microsoft.Extensions.Logging;
 
 namespace TodoAPI.Controllers;
 
@@ -14,19 +16,22 @@ namespace TodoAPI.Controllers;
 public class TodosController : ControllerBase
 {
     private readonly ITodosService _todosService;
+    private readonly ILogger<TodosController> _logger;
 
-    public TodosController(ITodosService todosService)
+    public TodosController(ITodosService todosService, ILogger<TodosController> logger)
     {
         _todosService = todosService;
+        _logger = logger;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Todo>>> GetTodos([FromQuery] string status = "all", [FromQuery] string sortBy = "createTime", [FromQuery] string sortOrder = "asc")
+    public async Task<ActionResult<IEnumerable<TodoDTO>>> GetTodos([FromQuery] string status = "all", [FromQuery] string sortBy = "createTime", [FromQuery] string sortOrder = "asc")
     {
         var userId = User.FindFirst("UserId")?.Value;
 
         if (string.IsNullOrEmpty(userId))
         {
+            _logger.LogWarning("User ID claim not found");
             return Unauthorized("User ID claim not found");
         }
 
@@ -35,29 +40,37 @@ public class TodosController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Todo>> GetTodoById(string id)
+    public async Task<ActionResult<TodoDTO>> GetTodoById(string id)
     {
         var todo = await _todosService.GetTodoById(id);
         if (todo == null)
         {
+            _logger.LogWarning($"Todo with ID {id} not found");
             return NotFound();
         }
         return Ok(todo);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Todo>> CreateTodo([FromBody] TodoCreateDTO todoDto)
+    public async Task<ActionResult<TodoDTO>> CreateTodo([FromBody] TodoCreateDTO todoDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var userId = User.FindFirst("UserId")?.Value;
 
         if (string.IsNullOrEmpty(userId))
         {
+            _logger.LogWarning("User ID claim not found");
             return Unauthorized("User ID claim not found");
         }
 
-        Console.WriteLine($"Extracted UserId from token: {userId}");
+        _logger.LogInformation($"Creating Todo for UserId: {userId}");
 
-        var todo = new Todo
+        await _todosService.CreateTodo(todoDto, userId);
+        var createdTodo = new Todo
         {
             Name = todoDto.Name,
             Description = todoDto.Description,
@@ -66,31 +79,27 @@ public class TodosController : ControllerBase
             UserId = userId // Ensure UserId is set from JWT
         };
 
-        Console.WriteLine($"Creating Todo with UserId: {todo.UserId}");
-
-        await _todosService.CreateTodo(todo);
-        return CreatedAtAction(nameof(GetTodoById), new { id = todo.Id }, todo);
+        return CreatedAtAction(nameof(GetTodoById), new { id = createdTodo.Id }, new TodoDTO(createdTodo));
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTodo(
-        string id, [FromBody] Todo todo)
+        string id, [FromBody] TodoUpdateDTO todoDto)
     {
-        if (id != todo.Id)
+        if (!ModelState.IsValid || id != todoDto.Id)
         {
-            return BadRequest();
+            return BadRequest(ModelState);
         }
 
         var userId = User.FindFirst("UserId")?.Value;
 
         if (string.IsNullOrEmpty(userId))
         {
+            _logger.LogWarning("User ID claim not found");
             return Unauthorized("User ID claim not found");
         }
 
-        todo.UserId = userId; // Ensure the UserId is set to the authenticated user
-
-        await _todosService.UpdateTodo(id, todo);
+        await _todosService.UpdateTodo(id, todoDto, userId);
         return NoContent();
     }
 
@@ -101,6 +110,7 @@ public class TodosController : ControllerBase
 
         if (string.IsNullOrEmpty(userId))
         {
+            _logger.LogWarning("User ID claim not found");
             return Unauthorized("User ID claim not found");
         }
 

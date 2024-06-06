@@ -4,17 +4,16 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TodoAPI.Data;
 using TodoAPI.Services;
-using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddControllers();
 
 // Add CORS services and define a policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins",
+    options.AddPolicy("AllowFrontendOrigins",
         policy => policy
             .WithOrigins("http://localhost:3000", "http://127.0.0.1:3000", "https://task-ease-flow.vercel.app")
             .AllowAnyMethod()
@@ -22,12 +21,13 @@ builder.Services.AddCors(options =>
             .AllowCredentials()); // Only include AllowCredentials if necessary
 });
 
+// Add Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoAPI", Version = "v1" });
 
-    // Add JWT Authentication
+    // Add JWT Authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -83,7 +83,7 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -94,10 +94,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Use HTTPS redirection
 app.UseHttpsRedirection();
 
 // Use the CORS policy
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowFrontendOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();

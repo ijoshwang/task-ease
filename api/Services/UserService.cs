@@ -13,9 +13,9 @@ public class UserService : IUserService
         _usersCollection = context.Users;
     }
 
-    public User Authenticate(string name, string password)
+    public async Task<User> AuthenticateAsync(string name, string password)
     {
-        var user = _usersCollection.Find(user => user.Name == name && user.Password == password).FirstOrDefault();
+        var user = await _usersCollection.Find(user => user.Name == name && user.Password == password).FirstOrDefaultAsync();
         return user;
     }
 }

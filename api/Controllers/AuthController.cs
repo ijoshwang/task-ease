@@ -4,6 +4,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using TodoAPI.Models;
 using TodoAPI.Services;
 
@@ -23,9 +24,14 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] UserLogin userLogin)
+    public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
     {
-        var user = _userService.Authenticate(userLogin.Name, userLogin.Password);
+        if (userLogin == null || string.IsNullOrEmpty(userLogin.Name) || string.IsNullOrEmpty(userLogin.Password))
+        {
+            return BadRequest("Invalid login request");
+        }
+
+        var user = await _userService.AuthenticateAsync(userLogin.Name, userLogin.Password);
 
         if (user == null)
         {
@@ -33,9 +39,8 @@ public class AuthController : ControllerBase
         }
 
         var token = GenerateToken(user);
-        Console.WriteLine($"Generated JWT Token: {token}"); // Debug log for generated token
 
-        return Ok(new { token });
+        return Ok(new AuthResponseDto { Token = token });
     }
 
     private string GenerateToken(User user)
@@ -45,18 +50,23 @@ public class AuthController : ControllerBase
 
         var claims = new[]
         {
-        new Claim(JwtRegisteredClaimNames.Sub, user.Name),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new Claim("UserId", user.Id) // Custom Claim for UserId
-    };
+            new Claim(JwtRegisteredClaimNames.Sub, user.Name),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("UserId", user.Id) // Custom Claim for UserId
+        };
 
         var token = new JwtSecurityToken(
-            _configuration["Jwt:Issuer"],
-            _configuration["Jwt:Audience"],
-            claims,
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
             expires: DateTime.Now.AddMinutes(30),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+}
+
+public class AuthResponseDto
+{
+    public string Token { get; set; }
 }
