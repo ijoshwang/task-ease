@@ -1,17 +1,16 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Container } from '@mui/material'
+import { Container, SelectChangeEvent } from '@mui/material'
 import { useRouter } from 'next/navigation'
 
 import { createTodo, deleteTodo, getTodos, Todo, updateTodo } from '@/services'
 
 import FilterSort from './FilterSort'
 import Header from './Header'
-import TodoForm from './TodoForm'
 import TodoList from './TodoList'
 
-const Main: React.FC = () => {
+export default function Main() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('dueDate')
@@ -138,8 +137,9 @@ const Main: React.FC = () => {
 
   return (
     <Container>
-      <Header onCreateTodo={handleCreateTodo} />
+      <Header />
       <FilterSort
+        onCreateTodo={handleCreateTodo}
         filterStatus={filterStatus}
         sortBy={sortBy}
         sortOrder={sortOrder}
@@ -148,20 +148,13 @@ const Main: React.FC = () => {
       />
       <TodoList
         todos={filteredTodos}
+        newTodo={newTodo}
+        setNewTodo={setNewTodo}
+        handleSaveNewTodo={handleSaveNewTodo}
         handleEditTodo={handleEditTodo}
         handleUpdateTodoStatus={handleUpdateTodoStatus}
         handleDeleteTodo={handleDeleteTodo}
       />
-      {newTodo && (
-        <TodoForm
-          newTodo={newTodo}
-          setNewTodo={setNewTodo}
-          handleSaveNewTodo={handleSaveNewTodo}
-          handleCancelNewTodo={() => setNewTodo(null)}
-        />
-      )}
     </Container>
   )
 }
-
-export default Main

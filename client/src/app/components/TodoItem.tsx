@@ -27,12 +27,12 @@ interface TodoItemProps {
   handleDeleteTodo: (id: string) => void
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({
+export default function TodoItem({
   todo,
   handleEditTodo,
   handleUpdateTodoStatus,
   handleDeleteTodo,
-}) => {
+}: TodoItemProps) {
   const [isEditing, setIsEditing] = React.useState(false)
   const [editedTodo, setEditedTodo] = React.useState<Todo>(todo)
 
@@ -171,5 +171,3 @@ const TodoItem: React.FC<TodoItemProps> = ({
     </Card>
   )
 }
-
-export default TodoItem

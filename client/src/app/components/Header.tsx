@@ -1,4 +1,5 @@
-import { Button, Typography } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 import { signOut } from '@/services'
@@ -7,40 +8,44 @@ interface HeaderProps {
   onCreateTodo: () => void
 }
 
-const Header: React.FC<HeaderProps> = ({ onCreateTodo }) => {
+export default function Header() {
   const router = useRouter()
 
   const handleSignOut = () => {
-    signOut() // Calls the sign-out service which will manage the token
-    router.push('/signin') // Redirects to the sign-in page
+    signOut()
+    router.push('/signin')
   }
 
   return (
-    <header style={{ backgroundColor: '#333', color: '#fff', padding: '16px' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        py: '14px',
+      }}
+    >
+      <Box
+        sx={{
           alignItems: 'center',
+          display: 'flex',
+          gap: '8px',
         }}
       >
-        <Typography variant="h4">Todo Lists</Typography>
-        <div>
-          <Button variant="contained" color="primary" onClick={onCreateTodo}>
-            Create Todo
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleSignOut}
-            style={{ marginLeft: '10px' }}
-          >
-            Sign Out
-          </Button>
-        </div>
-      </div>
-    </header>
+        <Image alt="TaskEase" src="/logo.png" height={40} width={40} />
+        <Typography
+          variant="body1"
+          sx={{
+            color: '#163044',
+            fontSize: '30px',
+          }}
+        >
+          Task Ease
+        </Typography>
+      </Box>
+      <Button variant="outlined" color="info" onClick={handleSignOut}>
+        Sign Out
+      </Button>
+    </Box>
   )
 }
-
-export default Header

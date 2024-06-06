@@ -23,65 +23,81 @@ interface TodoFormProps {
   handleCancelNewTodo: () => void
 }
 
-const TodoForm: React.FC<TodoFormProps> = ({
+export default function TodoForm({
   newTodo,
   setNewTodo,
   handleSaveNewTodo,
   handleCancelNewTodo,
-}) => (
-  <Card>
-    <CardHeader
-      title={
+}: TodoFormProps) {
+  return (
+    <Card>
+      <CardHeader
+        title={
+          <TextField
+            fullWidth
+            variant="outlined"
+            value={newTodo.name}
+            onChange={(e) =>
+              setNewTodo((prevTodo) => ({
+                ...prevTodo!,
+                name: e.target.value,
+              }))
+            }
+          />
+        }
+      />
+      <CardContent>
         <TextField
           fullWidth
           variant="outlined"
-          value={newTodo.name}
-          onChange={(e) => setNewTodo({ ...newTodo, name: e.target.value })}
-        />
-      }
-    />
-    <CardContent>
-      <TextField
-        fullWidth
-        variant="outlined"
-        value={newTodo.description}
-        onChange={(e) =>
-          setNewTodo({ ...newTodo, description: e.target.value })
-        }
-        multiline
-        rows={4}
-      />
-      <TextField
-        fullWidth
-        variant="outlined"
-        type="date"
-        value={newTodo.dueDate}
-        onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
-      />
-      <FormControl fullWidth variant="outlined">
-        <InputLabel>Status</InputLabel>
-        <Select
-          value={newTodo.status!.toString()}
+          value={newTodo.description}
           onChange={(e) =>
-            setNewTodo({ ...newTodo, status: Number(e.target.value) })
+            setNewTodo((prevTodo) => ({
+              ...prevTodo!,
+              description: e.target.value,
+            }))
           }
-          label="Status"
-        >
-          <MenuItem value={0}>Not Started</MenuItem>
-          <MenuItem value={1}>In Progress</MenuItem>
-          <MenuItem value={2}>Completed</MenuItem>
-        </Select>
-      </FormControl>
-    </CardContent>
-    <CardActions>
-      <IconButton onClick={handleSaveNewTodo}>
-        <CheckIcon />
-      </IconButton>
-      <IconButton onClick={handleCancelNewTodo}>
-        <CloseIcon />
-      </IconButton>
-    </CardActions>
-  </Card>
-)
-
-export default TodoForm
+          multiline
+          rows={4}
+        />
+        <TextField
+          fullWidth
+          variant="outlined"
+          type="date"
+          value={newTodo.dueDate}
+          onChange={(e) =>
+            setNewTodo((prevTodo) => ({
+              ...prevTodo!,
+              dueDate: e.target.value,
+            }))
+          }
+        />
+        <FormControl fullWidth variant="outlined">
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={newTodo.status!.toString()}
+            onChange={(e) =>
+              setNewTodo((prevTodo) => ({
+                ...prevTodo!,
+                status: Number(e.target.value),
+              }))
+            }
+            label="Status"
+          >
+            <MenuItem value={0}>Not Started</MenuItem>
+            <MenuItem value={1}>In Progress</MenuItem>
+            <MenuItem value={2}>Completed</MenuItem>
+          </Select>
+        </FormControl>
+      </CardContent>
+      <CardActions>
+        <IconButton onClick={handleSaveNewTodo}>
+          <CheckIcon />
+        </IconButton>
+        <IconButton onClick={handleCancelNewTodo}>
+          <CloseIcon />
+        </IconButton>
+      </CardActions>
+    </Card>
+  )
+}
