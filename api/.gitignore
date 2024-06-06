@@ -63,8 +63,8 @@ artifacts/
 
 bin/
 obj/
-appsettings.json
-appsettings.Development.json
+# appsettings.json
+# appsettings.Development.json
 
 # StyleCop
 StyleCopReport.xml
