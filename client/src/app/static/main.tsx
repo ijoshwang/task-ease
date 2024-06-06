@@ -23,7 +23,7 @@ import {
   Typography,
 } from '@mui/material'
 
-import { createTodo, deleteTodo, getTodos, Todo, updateTodo } from '../services'
+import { createTodo, deleteTodo, getTodos, Todo, updateTodo } from '@/services'
 
 const Component: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([])

@@ -11,7 +11,7 @@ import {
   Todo,
   updateTodo,
   UserCredentials,
-} from '../services'
+} from '@/services'
 
 const ExampleComponent: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([])
