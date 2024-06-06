@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
             .WithOrigins("http://localhost:3000", "http://127.0.0.1:3000", "https://task-ease-flow.vercel.app")
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowCredentials()); // Only include AllowCredentials if necessary
 });
 
 // Add Swagger for API documentation
