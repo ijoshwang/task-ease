@@ -18,14 +18,14 @@ import { Todo } from '@/services'
 
 interface TodoFormProps {
   newTodo: Todo | null
-  setNewTodo: React.Dispatch<React.SetStateAction<Todo | null>>
+  // setNewTodo: React.Dispatch<React.SetStateAction<Todo | null>>
   handleSaveNewTodo: () => void
   handleCancelNewTodo: () => void
 }
 
 export default function TodoForm({
   newTodo,
-  setNewTodo,
+  // setNewTodo,
   handleSaveNewTodo,
   handleCancelNewTodo,
 }: TodoFormProps) {
@@ -37,12 +37,12 @@ export default function TodoForm({
             fullWidth
             variant="outlined"
             value={newTodo?.name}
-            onChange={(e) =>
-              setNewTodo((prevTodo) => ({
-                ...prevTodo!,
-                name: e.target.value,
-              }))
-            }
+            // onChange={(e) =>
+            //   setNewTodo((prevTodo) => ({
+            //     ...prevTodo!,
+            //     name: e.target.value,
+            //   }))
+            // }
           />
         }
       />
@@ -51,12 +51,12 @@ export default function TodoForm({
           fullWidth
           variant="outlined"
           value={newTodo?.description}
-          onChange={(e) =>
-            setNewTodo((prevTodo) => ({
-              ...prevTodo!,
-              description: e.target.value,
-            }))
-          }
+          // onChange={(e) =>
+          //   setNewTodo((prevTodo) => ({
+          //     ...prevTodo!,
+          //     description: e.target.value,
+          //   }))
+          // }
           multiline
           rows={4}
         />
@@ -65,23 +65,23 @@ export default function TodoForm({
           variant="outlined"
           type="date"
           value={newTodo?.dueDate}
-          onChange={(e) =>
-            setNewTodo((prevTodo) => ({
-              ...prevTodo!,
-              dueDate: e.target.value,
-            }))
-          }
+          // onChange={(e) =>
+          //   setNewTodo((prevTodo) => ({
+          //     ...prevTodo!,
+          //     dueDate: e.target.value,
+          //   }))
+          // }
         />
         <FormControl fullWidth variant="outlined">
           <InputLabel>Status</InputLabel>
           <Select
             value={newTodo?.status!.toString()}
-            onChange={(e) =>
-              setNewTodo((prevTodo) => ({
-                ...prevTodo!,
-                status: Number(e.target.value),
-              }))
-            }
+            // onChange={(e) =>
+            //   setNewTodo((prevTodo) => ({
+            //     ...prevTodo!,
+            //     status: Number(e.target.value),
+            //   }))
+            // }
             label="Status"
           >
             <MenuItem value={0}>Not Started</MenuItem>

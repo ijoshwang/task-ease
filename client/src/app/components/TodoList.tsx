@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Grid } from '@mui/material'
 
 import { Todo } from '@/services'
@@ -24,13 +25,15 @@ export default function TodoList({
   handleUpdateTodoStatus,
   handleDeleteTodo,
 }: TodoListProps) {
+  const [editingId, setEditingId] = useState('')
+
   return (
     <Grid container spacing={2}>
       {newTodo && (
         <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
           <TodoForm
             newTodo={newTodo}
-            setNewTodo={setNewTodo}
+            // setNewTodo={setNewTodo}
             handleSaveNewTodo={handleSaveNewTodo}
             handleCancelNewTodo={() => setNewTodo(null)}
           />
@@ -39,6 +42,8 @@ export default function TodoList({
       {todos.map((todo) => (
         <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={todo.id}>
           <TodoItem
+            isEditing={editingId === todo.id}
+            setEditingId={setEditingId}
             todo={todo}
             handleEditTodo={handleEditTodo}
             handleUpdateTodoStatus={handleUpdateTodoStatus}
