@@ -127,10 +127,17 @@ export default function Main() {
         filterStatus === 'all' ? true : todo.status === Number(filterStatus)
       )
       .sort((a, b) => {
+        const aValue = a[sortBy as keyof Todo]
+        const bValue = b[sortBy as keyof Todo]
+
+        if (aValue === undefined || bValue === undefined) {
+          return 0
+        }
+
         if (sortOrder === 'asc') {
-          return a[sortBy as keyof Todo] > b[sortBy as keyof Todo] ? 1 : -1
+          return aValue > bValue ? 1 : -1
         } else {
-          return a[sortBy as keyof Todo] < b[sortBy as keyof Todo] ? 1 : -1
+          return aValue < bValue ? 1 : -1
         }
       })
   }, [todos, filterStatus, sortBy, sortOrder])
