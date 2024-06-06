@@ -72,7 +72,17 @@ async function sendRequest<T>(
 export async function signIn(
   credentials: UserCredentials
 ): Promise<SignInResponse> {
-  return sendRequest<SignInResponse>(ENDPOINT.SIGNIN, 'POST', credentials)
+  const response = await sendRequest<SignInResponse>(
+    ENDPOINT.SIGNIN,
+    'POST',
+    credentials
+  )
+
+  if (!response) {
+    throw new Error('Sign-in failed')
+  }
+
+  return response
 }
 
 export function signOut() {
@@ -90,17 +100,23 @@ export async function getTodos(
   if (sortBy) query.append('sortBy', sortBy)
   if (sortOrder) query.append('sortOrder', sortOrder)
 
-  return sendRequest<Todo[]>(`${ENDPOINT.TODOS}?${query.toString()}`)
+  const todos = await sendRequest<Todo[]>(
+    `${ENDPOINT.TODOS}?${query.toString()}`
+  )
+
+  return todos || [] // Return an empty array if the response is null
 }
 
-export async function getTodoById(todoId: string): Promise<Todo> {
+export async function getTodoById(todoId: string): Promise<Todo | null> {
+  // Allow null as a return type
   const endpoint = ENDPOINT.TODO.replace(':todoId', todoId)
 
-  return sendRequest<Todo>(endpoint)
+  return await sendRequest<Todo>(endpoint)
 }
 
-export async function createTodo(todo: Todo): Promise<Todo> {
-  return sendRequest<Todo>(ENDPOINT.TODOS, 'POST', todo)
+export async function createTodo(todo: Todo): Promise<Todo | null> {
+  // Allow null as a return type
+  return await sendRequest<Todo>(ENDPOINT.TODOS, 'POST', todo)
 }
 
 export async function updateTodo(todoId: string, todo: Todo): Promise<void> {

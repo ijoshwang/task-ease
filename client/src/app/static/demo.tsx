@@ -57,7 +57,7 @@ const ExampleComponent: React.FC = () => {
 
     try {
       const response = await createTodo(newTodo)
-      setTodos([...todos, response])
+      setTodos([])
       console.log('Created Todo:', response)
     } catch (error) {
       console.error('Error creating todo:', error)
