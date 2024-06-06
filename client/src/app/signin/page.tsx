@@ -31,6 +31,7 @@ export default function Signin() {
     <Container
       maxWidth="xs"
       sx={{
+        color: '#163044',
         pt: '200px',
       }}
     >
@@ -51,6 +52,7 @@ export default function Signin() {
               size="large"
               fullWidth
               sx={{
+                color: '#163044',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
