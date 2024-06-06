@@ -12,7 +12,7 @@ const ENDPOINT = {
 }
 
 export interface UserCredentials {
-  name: string // Ensure it matches backend field
+  name: string
   password: string
 }
 
@@ -60,7 +60,7 @@ async function sendRequest<T>(
   }
 
   if (response.status === 204) {
-    return null // Explicitly return null for No Content responses
+    return null
   }
 
   if (!response.ok) {
@@ -68,7 +68,7 @@ async function sendRequest<T>(
     throw new Error(error.message || 'Request failed')
   }
 
-  return response.json() // Parse JSON only if the response is OK and not a 204
+  return response.json()
 }
 
 export async function signIn(
@@ -88,8 +88,7 @@ export async function signIn(
 }
 
 export function signOut() {
-  globalThis.localStorage.removeItem(AUTH_TOKEN) // Removes the token from localStorage
-  // Additional cleanup can be performed here if necessary
+  globalThis.localStorage.removeItem(AUTH_TOKEN)
 }
 
 export async function getTodos(
@@ -110,13 +109,14 @@ export async function getTodos(
 }
 
 export async function getTodoById(todoId: string): Promise<Todo | null> {
-  // Allow null as a return type
   const endpoint = ENDPOINT.TODO.replace(':todoId', todoId)
 
   return await sendRequest<Todo>(endpoint)
 }
 
 export async function createTodo(todo: Todo): Promise<Todo | null> {
+  todo.name = todo.name.trim()
+  todo.description = todo.description.trim()
   todo.dueDate = dayjs(todo.dueDate).format()
 
   return await sendRequest<Todo>(ENDPOINT.TODOS, 'POST', todo)
@@ -124,7 +124,11 @@ export async function createTodo(todo: Todo): Promise<Todo | null> {
 
 export async function updateTodo(todoId: string, todo: Todo): Promise<void> {
   const endpoint = ENDPOINT.TODO.replace(':todoId', todoId)
+
+  todo.name = todo.name.trim()
+  todo.description = todo.description.trim()
   todo.dueDate = dayjs(todo.dueDate).format()
+
   await sendRequest<void>(endpoint, 'PUT', todo)
 }
 

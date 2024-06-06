@@ -79,28 +79,20 @@ export default function FilterSort({
       <Button
         variant="text"
         color="inherit"
-        startIcon={<ArrowDropUp />}
+        startIcon={sortOrder === 'asc' ? <ArrowDropUp /> : <ArrowDropDown />}
         sx={{
           fontSize: '14px',
           fontWeight: 'normal',
           textTransform: 'capitalize',
         }}
-      >
-        Ascending
-      </Button>
-      <Button
-        variant="text"
-        color="inherit"
-        startIcon={<ArrowDropDown />}
-        sx={{
-          fontSize: '14px',
-          fontWeight: 'normal',
-          textTransform: 'capitalize',
+        onClick={() => {
+          const val = sortOrder === 'asc' ? 'desc' : 'asc'
+          handleSortChange(sortBy, val)
         }}
       >
-        Descending
+        {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
       </Button>
-      <FormControl variant="outlined" size="small">
+      {/* <FormControl variant="outlined" size="small">
         <InputLabel>Order</InputLabel>
         <Select
           value={sortOrder}
@@ -110,7 +102,7 @@ export default function FilterSort({
           <MenuItem value="asc">Ascending</MenuItem>
           <MenuItem value="desc">Descending</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl> */}
     </Box>
   )
 }
