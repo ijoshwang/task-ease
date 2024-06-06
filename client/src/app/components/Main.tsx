@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Container, SelectChangeEvent } from '@mui/material'
+import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 
 import { createTodo, deleteTodo, getTodos, Todo, updateTodo } from '@/services'
@@ -16,7 +17,6 @@ export default function Main() {
   const [sortBy, setSortBy] = useState<string>('dueDate')
   const [sortOrder, setSortOrder] = useState<string>('asc')
   const [newTodo, setNewTodo] = useState<Todo | null>(null)
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -30,7 +30,6 @@ export default function Main() {
     globalThis.addEventListener('message', handleUnauthorized)
 
     return () => {
-      // Remove the event listener when the component unmounts
       globalThis.removeEventListener('message', handleUnauthorized)
     }
   }, [router])
@@ -52,22 +51,28 @@ export default function Main() {
     setNewTodo({
       name: '',
       description: '',
-      dueDate: '',
-      status: 0, // Default to Not Started
+      dueDate: dayjs().add(7, 'day').toString(),
     })
   }
 
-  const handleSaveNewTodo = async () => {
-    if (newTodo) {
-      try {
-        await createTodo(newTodo)
-        const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
-        setTodos(todosResponse)
-        setNewTodo(null) // Clear the new todo form
-      } catch (error) {
-        console.error('Error creating todo:', error)
+  const handleSaveTodo = async (id: string, todo: Todo) => {
+    try {
+      if (newTodo) {
+        await createTodo(todo)
+      } else {
+        await updateTodo(id, todo)
       }
+
+      const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
+      setTodos(todosResponse)
+      setNewTodo(null)
+    } catch (error) {
+      console.error('Error saving todo:', error)
     }
+  }
+
+  const handleCancel = async () => {
+    setNewTodo(null)
   }
 
   const handleUpdateTodoStatus = async (id: string, status: number) => {
@@ -83,30 +88,11 @@ export default function Main() {
     }
   }
 
-  const handleEditTodo = (todo: Todo | null) => {
-    setEditingTodo(todo)
-    setNewTodo(todo)
-  }
-
-  const handleSaveTodo = async () => {
-    if (editingTodo) {
-      try {
-        await updateTodo(editingTodo.id!, newTodo!)
-        const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
-        setTodos(todosResponse)
-        setEditingTodo(null)
-        setNewTodo(null)
-      } catch (error) {
-        console.error('Error saving todo:', error)
-      }
-    }
-  }
-
   const handleDeleteTodo = async (id: string) => {
     try {
       await deleteTodo(id)
-      const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
-      setTodos(todosResponse)
+      // const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
+      setTodos(todos.filter((t) => t.id !== id))
     } catch (error) {
       console.error('Error deleting todo:', error)
     }
@@ -154,11 +140,10 @@ export default function Main() {
         handleSortChange={handleSortChange}
       />
       <TodoList
-        todos={filteredTodos}
         newTodo={newTodo}
-        setNewTodo={setNewTodo}
-        handleSaveNewTodo={handleSaveNewTodo}
-        handleEditTodo={handleEditTodo}
+        todos={filteredTodos}
+        handleSaveTodo={handleSaveTodo}
+        handleCancel={handleCancel}
         handleUpdateTodoStatus={handleUpdateTodoStatus}
         handleDeleteTodo={handleDeleteTodo}
       />

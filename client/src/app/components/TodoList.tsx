@@ -9,9 +9,8 @@ import TodoItem from './TodoItem'
 interface TodoListProps {
   todos: Todo[]
   newTodo: Todo | null
-  setNewTodo: React.Dispatch<React.SetStateAction<Todo | null>>
-  handleSaveNewTodo: () => void
-  handleEditTodo: (todo: Todo | null) => void
+  handleSaveTodo: (id: string, todo: Todo) => Promise<void>
+  handleCancel: () => void
   handleUpdateTodoStatus: (id: string, status: number) => void
   handleDeleteTodo: (id: string) => void
 }
@@ -19,9 +18,8 @@ interface TodoListProps {
 export default function TodoList({
   todos,
   newTodo,
-  setNewTodo,
-  handleSaveNewTodo,
-  handleEditTodo,
+  handleSaveTodo,
+  handleCancel,
   handleUpdateTodoStatus,
   handleDeleteTodo,
 }: TodoListProps) {
@@ -32,10 +30,10 @@ export default function TodoList({
       {newTodo && (
         <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
           <TodoForm
-            newTodo={newTodo}
+            edittingTodo={newTodo}
             // setNewTodo={setNewTodo}
-            handleSaveNewTodo={handleSaveNewTodo}
-            handleCancelNewTodo={() => setNewTodo(null)}
+            handleSaveTodo={handleSaveTodo}
+            handleCancel={handleCancel}
           />
         </Grid>
       )}
@@ -45,7 +43,7 @@ export default function TodoList({
             isEditing={editingId === todo.id}
             setEditingId={setEditingId}
             todo={todo}
-            handleEditTodo={handleEditTodo}
+            handleSaveTodo={handleSaveTodo}
             handleUpdateTodoStatus={handleUpdateTodoStatus}
             handleDeleteTodo={handleDeleteTodo}
           />

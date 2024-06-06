@@ -19,7 +19,7 @@ interface TodoItemProps {
   todo: Todo
   isEditing: boolean
   setEditingId: (id: string) => void
-  handleEditTodo: (todo: Todo | null) => void
+  handleSaveTodo: (id: string, todo: Todo) => Promise<void>
   handleUpdateTodoStatus: (id: string, status: number) => void
   handleDeleteTodo: (id: string) => void
 }
@@ -28,25 +28,21 @@ export default function TodoItem({
   todo,
   isEditing,
   setEditingId,
-  handleEditTodo,
+  handleSaveTodo,
   handleUpdateTodoStatus,
   handleDeleteTodo,
 }: TodoItemProps) {
-  const handleSave = () => {
-    // handleEditTodo(currentTodo)
-  }
-
   const handleCancel = () => {
-    // setCurrentTodo(todo)
+    setEditingId('')
   }
 
   if (isEditing) {
     return (
       <TodoForm
-        newTodo={todo}
-        // setNewTodo={setCurrentTodo}
-        handleSaveNewTodo={handleSave}
-        handleCancelNewTodo={handleCancel}
+        edittingTodo={todo}
+        setEditingId={setEditingId}
+        handleSaveTodo={handleSaveTodo}
+        handleCancel={handleCancel}
       />
     )
   }

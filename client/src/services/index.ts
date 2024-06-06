@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 export const AUTH_TOKEN = 'AUTH_TOKEN'
 
 const baseURL = `${process.env.NEXT_PUBLIC_API_DOMAIN!}${process.env
@@ -115,12 +117,14 @@ export async function getTodoById(todoId: string): Promise<Todo | null> {
 }
 
 export async function createTodo(todo: Todo): Promise<Todo | null> {
-  // Allow null as a return type
+  todo.dueDate = dayjs(todo.dueDate).format()
+
   return await sendRequest<Todo>(ENDPOINT.TODOS, 'POST', todo)
 }
 
 export async function updateTodo(todoId: string, todo: Todo): Promise<void> {
   const endpoint = ENDPOINT.TODO.replace(':todoId', todoId)
+  todo.dueDate = dayjs(todo.dueDate).format()
   await sendRequest<void>(endpoint, 'PUT', todo)
 }
 

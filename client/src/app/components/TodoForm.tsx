@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState } from 'react'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import {
@@ -17,18 +17,20 @@ import dayjs from 'dayjs'
 import { Todo } from '@/services'
 
 interface TodoFormProps {
-  newTodo: Todo | null
-  // setNewTodo: React.Dispatch<React.SetStateAction<Todo | null>>
-  handleSaveNewTodo: () => void
-  handleCancelNewTodo: () => void
+  edittingTodo: Todo
+  handleSaveTodo: (id: string, todo: Todo) => Promise<void>
+  handleCancel: () => void
+  setEditingId?: (id: string) => void
 }
 
 export default function TodoForm({
-  newTodo,
-  // setNewTodo,
-  handleSaveNewTodo,
-  handleCancelNewTodo,
+  edittingTodo,
+  handleSaveTodo,
+  handleCancel,
+  setEditingId,
 }: TodoFormProps) {
+  const [todo, setTodo] = useState<Todo>(edittingTodo)
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box
@@ -48,53 +50,55 @@ export default function TodoForm({
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
-              // p: '8px 16px',
             }}
           >
             <TextField
+              autoFocus
               fullWidth
               variant="standard"
-              value={newTodo?.name}
-              // label="Title"
+              value={todo.name}
               placeholder="Title"
-              autoFocus
               size="small"
-              // onChange={(e) =>
-              //   setNewTodo((prevTodo) => ({
-              //     ...prevTodo!,
-              //     name: e.target.value,
-              //   }))
-              // }
+              onChange={(e) =>
+                setTodo({
+                  ...todo,
+                  name: e.target.value,
+                })
+              }
             />
             <TextField
               fullWidth
               variant="standard"
-              value={newTodo?.description}
+              value={todo.description}
               placeholder="Description"
-              // label="Description"
               size="small"
-              // onChange={(e) =>
-              //   setNewTodo((prevTodo) => ({
-              //     ...prevTodo!,
-              //     description: e.target.value,
-              //   }))
-              // }
+              onChange={(e) =>
+                setTodo({
+                  ...todo,
+                  description: e.target.value,
+                })
+              }
             />
             <MobileDatePicker
-              // label="Due Date"
-              value={newTodo?.dueDate ? dayjs(newTodo?.dueDate) : dayjs()}
+              value={dayjs(todo.dueDate)}
               sx={{
                 mt: '6px',
                 '.MuiInputBase-input': {
                   p: '6px 16px',
                 },
               }}
+              onChange={(value) => {
+                setTodo({
+                  ...todo,
+                  dueDate: dayjs(value).toString(),
+                })
+              }}
             />
             {/* <TextField
               fullWidth
               variant="standard"
               type="date"
-              // value={newTodo?.dueDate}
+              // value={todo?.dueDate}
               value={new Date().getTime()}
               label="Due Date"
               // onChange={(e) =>
@@ -107,7 +111,7 @@ export default function TodoForm({
             {/* <FormControl fullWidth variant="outlined">
           <InputLabel>Status</InputLabel>
           <Select
-            value={newTodo?.status!.toString()}
+            value={todo?.status!.toString()}
             // onChange={(e) =>
             //   setNewTodo((prevTodo) => ({
             //     ...prevTodo!,
@@ -127,10 +131,20 @@ export default function TodoForm({
               pt: 0,
             }}
           >
-            <IconButton onClick={handleSaveNewTodo}>
+            <IconButton
+              disabled={
+                todo.name === '' ||
+                todo.description === '' ||
+                todo.dueDate === ''
+              }
+              onClick={async () => {
+                await handleSaveTodo(todo.id || '', todo)
+                setEditingId && setEditingId('')
+              }}
+            >
               <CheckIcon fontSize="small" />
             </IconButton>
-            <IconButton onClick={handleCancelNewTodo}>
+            <IconButton onClick={handleCancel}>
               <CloseIcon fontSize="small" />
             </IconButton>
           </CardActions>
