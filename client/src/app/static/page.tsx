@@ -1,4 +1,4 @@
-import Main from './main.bak'
+import Main from './main'
 
 import styles from './page.module.css'
 

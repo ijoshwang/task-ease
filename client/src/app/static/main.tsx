@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -12,6 +12,10 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   Grid,
   IconButton,
@@ -23,62 +27,94 @@ import {
   Typography,
 } from '@mui/material'
 
-import { createTodo, deleteTodo, getTodos, Todo, updateTodo } from '@/services'
+interface Todo {
+  id: number
+  name: string
+  description: string
+  dueDate: string
+  status: string
+}
+
+interface User {
+  id: number
+  name: string
+}
+
+const users: User[] = [
+  { id: 1, name: 'John Doe' },
+  { id: 2, name: 'Jane Smith' },
+  { id: 3, name: 'Bob Johnson' },
+  { id: 4, name: 'Alice Williams' },
+]
 
 const Component: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([])
+  const [todos, setTodos] = useState<Todo[]>([
+    {
+      id: 1,
+      name: 'Finish project proposal',
+      description: 'Write up the project proposal and send it to the client',
+      dueDate: '2024-06-15',
+      status: 'In Progress',
+    },
+    {
+      id: 2,
+      name: 'Schedule team meeting',
+      description: 'Coordinate with the team to find a suitable meeting time',
+      dueDate: '2024-06-10',
+      status: 'Not Started',
+    },
+    {
+      id: 3,
+      name: 'Review marketing campaign',
+      description: 'Analyze the performance of the latest marketing campaign',
+      dueDate: '2024-06-20',
+      status: 'Completed',
+    },
+    {
+      id: 4,
+      name: 'Prepare quarterly report',
+      description: 'Gather data and create the quarterly financial report',
+      dueDate: '2024-06-30',
+      status: 'In Progress',
+    },
+  ])
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('dueDate')
   const [sortOrder, setSortOrder] = useState<string>('asc')
-  const [newTodo, setNewTodo] = useState<Todo | null>(null)
+  const [newTodo, setNewTodo] = useState<Todo>({
+    id: 0,
+    name: '',
+    description: '',
+    dueDate: '',
+    status: 'Not Started',
+  })
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
-        setTodos(todosResponse)
-      } catch (error) {
-        console.error('Error fetching todos:', error)
-      }
-    }
-
-    fetchData()
-  }, [filterStatus, sortBy, sortOrder])
+  const [showSignIn, setShowSignIn] = useState<boolean>(false)
 
   const handleCreateTodo = () => {
+    const newId = todos.length + 1
+    setTodos([
+      ...todos,
+      {
+        ...newTodo,
+        id: newId,
+      },
+    ])
     setNewTodo({
+      id: 0,
       name: '',
       description: '',
       dueDate: '',
-      status: 0, // Default to Not Started
+      status: 'Not Started',
+    })
+    setEditingTodo({
+      ...newTodo,
+      id: newId,
     })
   }
 
-  const handleSaveNewTodo = async () => {
-    if (newTodo) {
-      try {
-        const response = await createTodo(newTodo)
-        const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
-        setTodos(todosResponse)
-        setNewTodo(null) // Clear the new todo form
-      } catch (error) {
-        console.error('Error creating todo:', error)
-      }
-    }
-  }
-
-  const handleUpdateTodoStatus = async (id: string, status: number) => {
-    const todo = todos.find((t) => t.id === id)
-
-    if (todo) {
-      try {
-        await updateTodo(id, { ...todo, status })
-        setTodos(todos.map((t) => (t.id === id ? { ...t, status } : t)))
-      } catch (error) {
-        console.error('Error updating todo:', error)
-      }
-    }
+  const handleUpdateTodo = (id: number, status: string) => {
+    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, status } : todo)))
   }
 
   const handleEditTodo = (todo: Todo) => {
@@ -86,28 +122,24 @@ const Component: React.FC = () => {
     setNewTodo(todo)
   }
 
-  const handleSaveTodo = async () => {
-    if (editingTodo) {
-      try {
-        await updateTodo(editingTodo.id!, newTodo!)
-        const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
-        setTodos(todosResponse)
-        setEditingTodo(null)
-        setNewTodo(null)
-      } catch (error) {
-        console.error('Error saving todo:', error)
-      }
-    }
+  const handleSaveTodo = () => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === editingTodo?.id ? { ...todo, ...newTodo } : todo
+      )
+    )
+    setEditingTodo(null)
+    setNewTodo({
+      id: 0,
+      name: '',
+      description: '',
+      dueDate: '',
+      status: 'Not Started',
+    })
   }
 
-  const handleDeleteTodo = async (id: string) => {
-    try {
-      await deleteTodo(id)
-      const todosResponse = await getTodos(filterStatus, sortBy, sortOrder)
-      setTodos(todosResponse)
-    } catch (error) {
-      console.error('Error deleting todo:', error)
-    }
+  const handleDeleteTodo = (id: number) => {
+    setTodos(todos.filter((todo) => todo.id !== id))
   }
 
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
@@ -122,7 +154,7 @@ const Component: React.FC = () => {
   const filteredTodos = useMemo(() => {
     return todos
       .filter((todo) =>
-        filterStatus === 'all' ? true : todo.status === Number(filterStatus)
+        filterStatus === 'all' ? true : todo.status === filterStatus
       )
       .sort((a, b) => {
         if (sortOrder === 'asc') {
@@ -133,31 +165,53 @@ const Component: React.FC = () => {
       })
   }, [todos, filterStatus, sortBy, sortOrder])
 
+  const handleSignIn = (user: User) => {
+    console.log(`Signing in as ${user.name}`)
+    setShowSignIn(false)
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <header
-        style={{ backgroundColor: '#333', color: '#fff', padding: '16px' }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
+    <div className="flex flex-col h-screen">
+      <header className="bg-gray-900 text-white py-4 px-6">
+        <div className="flex justify-between items-center">
           <Typography variant="h4">Todo Lists</Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setShowSignIn(true)}
+          >
+            Sign In
+          </Button>
         </div>
       </header>
-      <main style={{ flex: 1, padding: '24px' }}>
-        <div style={{ marginBottom: '24px' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '16px',
-            }}
-          >
+      {showSignIn && (
+        <Dialog open={showSignIn} onClose={() => setShowSignIn(false)}>
+          <DialogTitle>Sign In</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2}>
+              {users.map((user) => (
+                <Grid item xs={6} key={user.id}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={() => handleSignIn(user)}
+                  >
+                    {user.name}
+                  </Button>
+                </Grid>
+              ))}
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowSignIn(false)} color="primary">
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+      <main className="flex-1 p-6">
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
             <Typography variant="h5">Todos</Typography>
             <Button
               variant="contained"
@@ -167,15 +221,8 @@ const Component: React.FC = () => {
               Create Todo
             </Button>
           </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '16px',
-            }}
-          >
-            <div style={{ display: 'flex', gap: '16px' }}>
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex gap-4">
               <FormControl variant="outlined" size="small">
                 <InputLabel>Filter by Status</InputLabel>
                 <Select
@@ -184,9 +231,9 @@ const Component: React.FC = () => {
                   label="Filter by Status"
                 >
                   <MenuItem value="all">All</MenuItem>
-                  <MenuItem value="0">Not Started</MenuItem>
-                  <MenuItem value="1">In Progress</MenuItem>
-                  <MenuItem value="2">Completed</MenuItem>
+                  <MenuItem value="Not Started">Not Started</MenuItem>
+                  <MenuItem value="In Progress">In Progress</MenuItem>
+                  <MenuItem value="Completed">Completed</MenuItem>
                 </Select>
               </FormControl>
               <FormControl variant="outlined" size="small">
@@ -215,73 +262,6 @@ const Component: React.FC = () => {
             </div>
           </div>
           <Grid container spacing={2}>
-            {newTodo && (
-              <Grid item xs={12} md={6} lg={4}>
-                <Card>
-                  <CardHeader
-                    title={
-                      <TextField
-                        fullWidth
-                        variant="outlined"
-                        value={newTodo.name}
-                        onChange={(e) =>
-                          setNewTodo({ ...newTodo, name: e.target.value })
-                        }
-                      />
-                    }
-                  />
-                  <CardContent>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      value={newTodo.description}
-                      onChange={(e) =>
-                        setNewTodo({
-                          ...newTodo,
-                          description: e.target.value,
-                        })
-                      }
-                      multiline
-                      rows={4}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      type="date"
-                      value={newTodo.dueDate}
-                      onChange={(e) =>
-                        setNewTodo({ ...newTodo, dueDate: e.target.value })
-                      }
-                    />
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel>Status</InputLabel>
-                      <Select
-                        value={newTodo.status!.toString()} // Convert number to string for Select component
-                        onChange={(e) =>
-                          setNewTodo({
-                            ...newTodo,
-                            status: Number(e.target.value),
-                          })
-                        }
-                        label="Status"
-                      >
-                        <MenuItem value={0}>Not Started</MenuItem>
-                        <MenuItem value={1}>In Progress</MenuItem>
-                        <MenuItem value={2}>Completed</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </CardContent>
-                  <CardActions>
-                    <IconButton onClick={handleSaveNewTodo}>
-                      <CheckIcon />
-                    </IconButton>
-                    <IconButton onClick={() => setNewTodo(null)}>
-                      <CloseIcon />
-                    </IconButton>
-                  </CardActions>
-                </Card>
-              </Grid>
-            )}
             {filteredTodos.map((todo) => (
               <Grid item xs={12} md={6} lg={4} key={todo.id}>
                 <Card>
@@ -291,9 +271,9 @@ const Component: React.FC = () => {
                         <TextField
                           fullWidth
                           variant="outlined"
-                          value={newTodo?.name}
+                          value={newTodo.name}
                           onChange={(e) =>
-                            setNewTodo({ ...newTodo!, name: e.target.value })
+                            setNewTodo({ ...newTodo, name: e.target.value })
                           }
                         />
                       ) : (
@@ -310,10 +290,10 @@ const Component: React.FC = () => {
                         <TextField
                           fullWidth
                           variant="outlined"
-                          value={newTodo?.description}
+                          value={newTodo.description}
                           onChange={(e) =>
                             setNewTodo({
-                              ...newTodo!,
+                              ...newTodo,
                               description: e.target.value,
                             })
                           }
@@ -324,26 +304,23 @@ const Component: React.FC = () => {
                           fullWidth
                           variant="outlined"
                           type="date"
-                          value={newTodo?.dueDate}
+                          value={newTodo.dueDate}
                           onChange={(e) =>
-                            setNewTodo({ ...newTodo!, dueDate: e.target.value })
+                            setNewTodo({ ...newTodo, dueDate: e.target.value })
                           }
                         />
                         <FormControl fullWidth variant="outlined">
                           <InputLabel>Status</InputLabel>
                           <Select
-                            value={newTodo?.status!.toString()} // Convert number to string for Select component
+                            value={newTodo.status}
                             onChange={(e) =>
-                              setNewTodo({
-                                ...newTodo!,
-                                status: Number(e.target.value),
-                              })
+                              setNewTodo({ ...newTodo, status: e.target.value })
                             }
                             label="Status"
                           >
-                            <MenuItem value={0}>Not Started</MenuItem>
-                            <MenuItem value={1}>In Progress</MenuItem>
-                            <MenuItem value={2}>Completed</MenuItem>
+                            <MenuItem value="Not Started">Not Started</MenuItem>
+                            <MenuItem value="In Progress">In Progress</MenuItem>
+                            <MenuItem value="Completed">Completed</MenuItem>
                           </Select>
                         </FormControl>
                       </>
@@ -356,20 +333,14 @@ const Component: React.FC = () => {
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         editingTodo?.id === todo.id
                           ? 'bg-blue-100 text-blue-600'
-                          : todo.status === 0
+                          : todo.status === 'Not Started'
                           ? 'bg-red-100 text-red-600'
-                          : todo.status === 1
+                          : todo.status === 'In Progress'
                           ? 'bg-yellow-100 text-yellow-600'
                           : 'bg-green-100 text-green-600'
                       }`}
                     >
-                      {editingTodo?.id === todo.id
-                        ? 'Editing'
-                        : todo.status === 0
-                        ? 'Not Started'
-                        : todo.status === 1
-                        ? 'In Progress'
-                        : 'Completed'}
+                      {editingTodo?.id === todo.id ? 'Editing' : todo.status}
                     </div>
                     <div className="flex gap-2">
                       {editingTodo?.id === todo.id ? (
@@ -384,21 +355,23 @@ const Component: React.FC = () => {
                       ) : (
                         <>
                           <IconButton
-                            onClick={() => handleUpdateTodoStatus(todo.id!, 1)}
+                            onClick={() =>
+                              handleUpdateTodo(todo.id, 'In Progress')
+                            }
                           >
                             <PlayArrowIcon />
                           </IconButton>
                           <IconButton
-                            onClick={() => handleUpdateTodoStatus(todo.id!, 2)}
+                            onClick={() =>
+                              handleUpdateTodo(todo.id, 'Completed')
+                            }
                           >
                             <CheckIcon />
                           </IconButton>
                           <IconButton onClick={() => handleEditTodo(todo)}>
                             <EditIcon />
                           </IconButton>
-                          <IconButton
-                            onClick={() => handleDeleteTodo(todo.id!)}
-                          >
+                          <IconButton onClick={() => handleDeleteTodo(todo.id)}>
                             <DeleteIcon />
                           </IconButton>
                         </>
