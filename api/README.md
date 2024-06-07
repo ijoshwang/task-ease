@@ -1,31 +1,19 @@
-# Task-Ease API
+### Backend Setup
 
-The server-side of Task-Ease is built using ASP.NET Core 8.0+ with C#, providing a robust and scalable API for managing TODOs. MongoDB Atlas is used as the database, and JWT is used for authentication.
+Create a `.env` file in the api directory and add the following:
 
-## Tech Stack
+```
+MONGODB_CONNECTION_STRING=
+MONGODB_DATABASE_NAME==
+JWT_KEY=
+JWT_ISSUER=
+JWT_AUDIENCE=
+```
 
-- **Framework**: ASP.NET Core 8.0+
-- **Programming Language**: C#
-- **Database**: MongoDB (MongoDB Atlas)
-- **Authentication**: JWT (JSON Web Tokens)
+```
+dotnet restore
+dotnet build
+dotnet watch run
+```
 
-## Directory Structure
-
-- Detailed structure of API-side directories and files.
-
-## Getting Started
-
-### Prerequisites
-
-- .NET SDK 8.0+
-- MongoDB Atlas account
-
-### Setup
-
-1. Navigate to the API directory.
-2. Restore dependencies.
-3. Configure MongoDB and JWT settings.
-
-### Running the API
-
-Run the API and access it via the specified port.
+API documentation can be accessed at https://localhost:5008/swagger
