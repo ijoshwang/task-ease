@@ -4,13 +4,15 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TodoAPI.Data;
 using TodoAPI.Services;
+using dotenv.net;
+
+// Load environment variables from .env file
+DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Add services to the container.
 builder.Services.AddControllers();
-
-// Add CORS services and define a policy
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontendOrigins",
@@ -27,7 +29,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoAPI", Version = "v1" });
 
-    // Add JWT Authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -54,14 +55,29 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Configure MongoDB context
-builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection("MongoDB"));
+var mongoConnectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") ?? builder.Configuration["MongoDB:ConnectionString"];
+var mongoDatabaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE_NAME") ?? builder.Configuration["MongoDB:DatabaseName"];
+
+builder.Services.Configure<MongoDbSettings>(options =>
+{
+    options.ConnectionString = mongoConnectionString;
+    options.DatabaseName = mongoDatabaseName;
+});
 
 builder.Services.AddSingleton<TodoContext>();
 builder.Services.AddScoped<ITodosService, TodosService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Configure JWT Authentication
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["Jwt:Key"];
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? builder.Configuration["Jwt:Issuer"];
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? builder.Configuration["Jwt:Audience"];
+
+if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+{
+    throw new InvalidOperationException("JWT configuration is missing.");
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -75,15 +91,15 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -94,15 +110,9 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Use HTTPS redirection
 app.UseHttpsRedirection();
-
-// Use the CORS policy
 app.UseCors("AllowFrontendOrigins");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
